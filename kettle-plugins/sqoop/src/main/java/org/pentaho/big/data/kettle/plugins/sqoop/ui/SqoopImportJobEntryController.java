@@ -25,6 +25,7 @@ package org.pentaho.big.data.kettle.plugins.sqoop.ui;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.eclipse.swt.widgets.Shell;
+import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.kettle.plugins.hdfs.vfs.Schemes;
 import org.pentaho.big.data.kettle.plugins.sqoop.AbstractSqoopJobEntry;
 import org.pentaho.big.data.kettle.plugins.sqoop.SqoopImportConfig;
@@ -33,10 +34,13 @@ import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.ui.spoon.Spoon;
+import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.BindingFactory;
+import org.pentaho.ui.xul.components.XulMenuList;
 import org.pentaho.ui.xul.containers.XulDialog;
+import org.pentaho.ui.xul.util.AbstractModelList;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.util.Collection;
@@ -100,12 +104,25 @@ public class SqoopImportJobEntryController extends
     }
   }
 
-  public void editNamedCluster() {
+  public void editNamedCluster() throws MetaStoreException {
     if ( isSelectedNamedCluster() ) {
       XulDialog xulDialog = (XulDialog) getXulDomContainer().getDocumentRoot().getElementById( "sqoop-import" );
       Shell shell = (Shell) xulDialog.getRootObject();
       ncDelegate.editNamedCluster( null, selectedNamedCluster, shell );
+      String cn = selectedNamedCluster.getName();
       populateNamedClusters();
+      selectNamedCluster( cn );
+    }
+  }
+
+  public void selectNamedCluster( String configName ) {
+    @SuppressWarnings( "unchecked" )
+    XulMenuList<NamedCluster> namedConfigMenu =
+      (XulMenuList<NamedCluster>) container.getDocumentRoot().getElementById( "named-clusters" );
+    for ( NamedCluster nc : getNamedClusters() ) {
+      if ( configName != null && configName.equals( nc.getName() ) ) {
+        namedConfigMenu.setSelectedItem( nc );
+      }
     }
   }
 
