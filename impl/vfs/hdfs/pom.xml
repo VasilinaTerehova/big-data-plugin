@@ -47,4 +47,22 @@
       <version>${dependency.mockito.revision}</version>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${dependency.maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <ImportPackage>*,
+              org.apache.commons.vfs2.*
+            </ImportPackage>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+</build>
 </project>

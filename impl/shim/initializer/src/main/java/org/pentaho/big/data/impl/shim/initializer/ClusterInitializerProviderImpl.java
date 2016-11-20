@@ -27,30 +27,33 @@ import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.api.initializer.ClusterInitializerProvider;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
 import org.pentaho.hadoop.shim.ConfigurationException;
+import org.pentaho.hadoop.shim.spi.HadoopConfigurationProvider;
 
 /**
  * Created by bryan on 8/7/15.
  */
 public class ClusterInitializerProviderImpl implements ClusterInitializerProvider {
-  private final HadoopConfigurationBootstrap hadoopConfigurationBootstrap;
+  //private final HadoopConfigurationBootstrap hadoopConfigurationBootstrap;
+  //private final HadoopConfigurationProvider hadoopConfigurationProvider;
 
-  public ClusterInitializerProviderImpl() {
-    this( HadoopConfigurationBootstrap.getInstance() );
+  public ClusterInitializerProviderImpl(  ) {
+    //this.hadoopConfigurationProvider = hadoopConfigurationProvider;
+    //this( HadoopConfigurationBootstrap.getInstance() );
   }
 
-  public ClusterInitializerProviderImpl( HadoopConfigurationBootstrap hadoopConfigurationBootstrap ) {
-    this.hadoopConfigurationBootstrap = hadoopConfigurationBootstrap;
-  }
+//  public ClusterInitializerProviderImpl( HadoopConfigurationBootstrap hadoopConfigurationBootstrap ) {
+//    /this.hadoopConfigurationBootstrap = hadoopConfigurationBootstrap;
+//  }
 
   @Override public boolean canHandle( NamedCluster namedCluster ) {
     return true;
   }
 
   @Override public void initialize( NamedCluster namedCluster ) throws ClusterInitializationException {
-    try {
-      hadoopConfigurationBootstrap.getProvider();
-    } catch ( ConfigurationException e ) {
-      throw new ClusterInitializationException( e );
-    }
+//    try {
+//      //hadoopConfigurationBootstrap.getProvider();
+//    } catch ( ConfigurationException e ) {
+//      throw new ClusterInitializationException( e );
+//    }
   }
 }
