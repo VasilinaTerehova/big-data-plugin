@@ -22,12 +22,18 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.input;
 
+import java.util.List;
+
+import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.steps.file.BaseFileInputStepData;
+import org.pentaho.hadoop.shim.api.format.InputFormat;
+import org.pentaho.hadoop.shim.api.format.PentahoInputSplit;
+import org.pentaho.hadoop.shim.api.format.RecordReader;
 
 public class ParquetInputData extends BaseFileInputStepData {
-  /*ParquetInputFormat input;
-  List<InputSplit> splits;
+  InputFormat input;
+  List<PentahoInputSplit> splits;
   int currentSplit;
   RecordReader reader;
-  RowMetaInterface outputRowMeta;*/
+  RowMetaInterface outputRowMeta;
 }
