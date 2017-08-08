@@ -31,6 +31,7 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.di.trans.steps.file.BaseFileInputStep;
 import org.pentaho.di.trans.steps.file.IBaseFileInputReader;
+import org.pentaho.hadoop.shim.HadoopConfiguration;
 
 public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, ParquetInputData> {
 
@@ -90,6 +91,8 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
   }
 
   void initFiles( ParquetInputData data ) throws Exception {
+    //HadoopConfiguration hc=null;
+    //hc.getFormatShim();
     throw new KettleException( "Requires Shim API changes" );
     /* data.input = new ParquetInputFormat<>( PentahoParquetReadSupport.class );
     Job job = new Job();
@@ -109,7 +112,7 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
 
   void openReader( ParquetInputData data ) throws Exception {
     throw new KettleException( "Requires Shim API changes" );
-    /*Configuration c = new Configuration();
+   /* Configuration c = new Configuration();
     TaskAttemptID id = new TaskAttemptID();
     TaskAttemptContextImpl task = new TaskAttemptContextImpl( c, id );
 
