@@ -22,6 +22,9 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.input;
 
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
 import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.trans.Trans;
@@ -36,20 +39,26 @@ import org.pentaho.di.trans.step.StepMeta;
     i18nPackageName = "org.pentaho.di.trans.steps.parquet" )
 public class ParquetInputMeta extends ParquetInputMetaBase {
 
-  private final FormatService formatService;
+  private final NamedClusterServiceLocator namedClusterServiceLocator;
+  private final NamedClusterService namedClusterService;
 
-  public ParquetInputMeta( FormatService formatService) {
-    this.formatService = formatService;
+  public ParquetInputMeta( NamedClusterServiceLocator namedClusterServiceLocator, NamedClusterService namedClusterService) {
+    this.namedClusterServiceLocator = namedClusterServiceLocator;
+    this.namedClusterService = namedClusterService;
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
       Trans trans ) {
-    return new ParquetInput( stepMeta, stepDataInterface, copyNr, transMeta, trans, formatService );
+    return new ParquetInput( stepMeta, stepDataInterface, copyNr, transMeta, trans, namedClusterServiceLocator );
   }
 
   @Override
   public StepDataInterface getStepData() {
     return new ParquetInputData();
+  }
+
+  public NamedCluster getNamedCluster() {
+    return namedClusterService.getClusterTemplate();
   }
 }

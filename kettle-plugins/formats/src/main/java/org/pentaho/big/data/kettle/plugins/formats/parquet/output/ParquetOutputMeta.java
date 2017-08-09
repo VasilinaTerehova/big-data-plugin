@@ -22,6 +22,9 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.output;
 
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
 import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.util.Utils;
@@ -40,21 +43,26 @@ import org.pentaho.di.trans.step.StepMeta;
 public class ParquetOutputMeta extends ParquetOutputMetaBase {
 
   private static final Class<?> PKG = ParquetOutputMeta.class;
+  private final NamedClusterService namedClusterService;
 
   private EncodingType encodingType;
   private CompressionType compressionType;
   private ParquetVersion parquetVersion;
+  protected NamedCluster namedCluster;
 
-  private FormatService formatService;
+  private NamedClusterServiceLocator namedClusterServiceLocator;
+  //private final NamedClusterLoadSaveUtil namedClusterLoadSaveUtil;
 
-  public ParquetOutputMeta( FormatService formatService ) {
-    this.formatService = formatService;
+  public ParquetOutputMeta( NamedClusterServiceLocator namedClusterServiceLocator, NamedClusterService namedClusterService ) {
+    this.namedClusterServiceLocator = namedClusterServiceLocator;
+    this.namedClusterService = namedClusterService;
+
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
                                 Trans trans ) {
-    return new ParquetOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans, formatService );
+    return new ParquetOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans, namedClusterServiceLocator );
   }
 
 
@@ -174,5 +182,9 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
 
   private static String getMsg( String key ) {
     return BaseMessages.getString( PKG, key );
+  }
+
+  public NamedCluster getNamedCluster() {
+    return namedClusterService.getClusterTemplate();
   }
 }

@@ -22,6 +22,8 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.output;
 
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.ValueMetaInterface;
@@ -41,15 +43,16 @@ import java.nio.file.Path;
 
 public class ParquetOutput extends BaseStep implements StepInterface {
 
-  private final FormatService formatService;
+  private final NamedClusterServiceLocator namedClusterServiceLocator;
+  //private final FormatService formatService;
   private ParquetOutputMetaBase meta;
 
   private ParquetOutputData data;
 
   public ParquetOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-                        Trans trans, FormatService formatService ) {
+                        Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
-    this.formatService = formatService;
+    this.namedClusterServiceLocator = namedClusterServiceLocator;
   }
 
   public static SchemaDescription makeScheme() {
@@ -62,16 +65,24 @@ public class ParquetOutput extends BaseStep implements StepInterface {
 
   @Override
   public synchronized boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
-    Configuration configuration = formatService.createConfiguration();
-    Path tempFile = null;
+    ParquetOutputMeta parquetOutputMeta = (ParquetOutputMeta) smi;
+    FormatService formatService = null;
     try {
-      tempFile = Files.createTempDirectory( "parquet" );
-    } catch ( IOException e ) {
-      throw new RuntimeException( "error writing to temp file parquet ", e );
+      formatService = namedClusterServiceLocator.getService( parquetOutputMeta.getNamedCluster(), FormatService.class );
+
+      Configuration configuration = formatService.createConfiguration();
+      Path tempFile = null;
+      try {
+        tempFile = Files.createTempDirectory( "parquet" );
+      } catch ( IOException e ) {
+        throw new RuntimeException( "error writing to temp file parquet ", e );
+      }
+      //here should be builder to set property
+      configuration.set( "mapreduce.output.fileoutputformat.outputdir", tempFile.toString() );
+      formatService.getOutputFormat( configuration, makeScheme() );
+    } catch ( ClusterInitializationException e ) {
+      throw new RuntimeException( "can't get service forma shim ", e );
     }
-    //here should be builder to set property
-    configuration.set( "mapreduce.output.fileoutputformat.outputdir", tempFile.toString() );
-    formatService.getOutputFormat( configuration, makeScheme() );
     return true;
     /*  meta = (ParquetOutputMetaBase) smi;
     data = (ParquetOutputData) sdi;
@@ -147,7 +158,7 @@ public class ParquetOutput extends BaseStep implements StepInterface {
 
   public void writeRow( Object[] row ) throws KettleException {
     //throw new KettleException( "Requires Shim API changes" );
-    System.out.println("write row");
+    System.out.println( "write row" );
    /* GenericRecord record = new GenericData.Record( data.avroSchema );
     List<ParquetOutputField> outputFields = meta.getOutputFields();
     for ( ParquetOutputField field : outputFields ) {

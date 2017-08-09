@@ -33,7 +33,4 @@ public interface FormatService {
   PentahoOutputFormat getOutputFormat( Configuration configuration, SchemaDescription schemaDescription );
 
   Configuration createConfiguration();
-  //String getJaasConfig();
-
-  //boolean isKerberos();
 }

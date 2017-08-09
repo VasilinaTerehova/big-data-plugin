@@ -23,6 +23,8 @@
 package org.pentaho.big.data.kettle.plugins.formats.parquet.input;
 
 import org.apache.commons.vfs2.FileObject;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.kettle.plugins.formats.parquet.output.ParquetOutput;
 import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.exception.KettleException;
@@ -38,12 +40,12 @@ import org.pentaho.hadoop.shim.api.Configuration;
 
 public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, ParquetInputData> {
 
-  private final FormatService formatService;
+  private final NamedClusterServiceLocator namedClusterServiceLocator;
 
   public ParquetInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-                       Trans trans, FormatService formatService ) {
+                       Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
-    this.formatService = formatService;
+    this.namedClusterServiceLocator = namedClusterServiceLocator;
 
     // dirty hack for inialize file: filesystem
  /*   try {
@@ -59,11 +61,18 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
 
   @Override
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
+    ParquetInputMeta parquetOutputMeta = (ParquetInputMeta) smi;
     //throw new KettleException( "Requires Shim API changes" );
-    Configuration configuration = formatService.createConfiguration();
-    configuration.set( "mapreduce.input.fileinputformat.inputdir",
-      "file:///d:/projects/pentaho/pentaho-hadoop-shims/common/common-shim/src/test/resources/sample.pqt" );
-    formatService.getInputFormat( configuration, ParquetOutput.makeScheme() );
+    FormatService formatService = null;
+    try {
+      formatService = namedClusterServiceLocator.getService( parquetOutputMeta.getNamedCluster(), FormatService.class );
+      Configuration configuration = formatService.createConfiguration();
+//      configuration.set( "mapreduce.input.fileinputformat.inputdir",
+//        "file:///d:/projects/pentaho/pentaho-hadoop-shims/common/common-shim/src/test/resources/sample.pqt" );
+      formatService.getInputFormat( configuration, ParquetOutput.makeScheme() );
+    } catch ( ClusterInitializationException e ) {
+      throw new RuntimeException( "can't create formatservice ", e );
+    }
     return true;
     /* ParquetInputData data = (ParquetInputData) sdi;
 
