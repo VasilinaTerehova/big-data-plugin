@@ -10,6 +10,7 @@
   </bean>
   <bean id="parquetInputMeta" class="org.pentaho.big.data.kettle.plugins.formats.parquet.input.ParquetInputMeta" scope="prototype">
     <pen:di-plugin type="org.pentaho.di.core.plugins.StepPluginType"/>
+    <argument
   </bean>
 
   <reference id="namedClusterService" interface="org.pentaho.big.data.api.cluster.NamedClusterService"/>
