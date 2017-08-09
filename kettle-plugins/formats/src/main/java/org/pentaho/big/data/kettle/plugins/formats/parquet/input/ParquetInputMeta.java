@@ -22,6 +22,7 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.input;
 
+import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -35,10 +36,16 @@ import org.pentaho.di.trans.step.StepMeta;
     i18nPackageName = "org.pentaho.di.trans.steps.parquet" )
 public class ParquetInputMeta extends ParquetInputMetaBase {
 
+  private final FormatService formatService;
+
+  public ParquetInputMeta( FormatService formatService) {
+    this.formatService = formatService;
+  }
+
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
       Trans trans ) {
-    return new ParquetInput( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    return new ParquetInput( stepMeta, stepDataInterface, copyNr, transMeta, trans, formatService );
   }
 
   @Override

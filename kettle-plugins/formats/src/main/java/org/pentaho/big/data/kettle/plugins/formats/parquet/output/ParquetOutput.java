@@ -22,7 +22,9 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.output;
 
+import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStep;
@@ -30,21 +32,47 @@ import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.hadoop.shim.api.Configuration;
+import org.pentaho.hadoop.shim.api.format.SchemaDescription;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ParquetOutput extends BaseStep implements StepInterface {
 
+  private final FormatService formatService;
   private ParquetOutputMetaBase meta;
 
   private ParquetOutputData data;
 
   public ParquetOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                        Trans trans, FormatService formatService ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    this.formatService = formatService;
+  }
+
+  public static SchemaDescription makeScheme() {
+    //this part should come from step data
+    SchemaDescription s = new SchemaDescription();
+    s.addField( s.new Field( "b", "Name", ValueMetaInterface.TYPE_STRING ) );
+    s.addField( s.new Field( "c", "Age", ValueMetaInterface.TYPE_STRING ) );
+    return s;
   }
 
   @Override
   public synchronized boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
-    throw new KettleException( "Requires Shim API changes" );
+    Configuration configuration = formatService.createConfiguration();
+    Path tempFile = null;
+    try {
+      tempFile = Files.createTempDirectory( "parquet" );
+    } catch ( IOException e ) {
+      throw new RuntimeException( "error writing to temp file parquet ", e );
+    }
+    //here should be builder to set property
+    configuration.set( "mapreduce.output.fileoutputformat.outputdir", tempFile.toString() );
+    formatService.getOutputFormat( configuration, makeScheme() );
+    return true;
     /*  meta = (ParquetOutputMetaBase) smi;
     data = (ParquetOutputData) sdi;
 
@@ -62,7 +90,7 @@ public class ParquetOutput extends BaseStep implements StepInterface {
       // Path path = shim.getFileSystem( conf ).asPath( file.getName().getURI() );
       
 //      HadoopConfiguration hadoopConfiguration =
-//          HadoopConfigurationBootstrap.getHadoopConfigurationProvider().getActiveConfiguration();
+//          HadoopConfigurationBootstrap.getHadoopConfigurationProvider().createConfiguration();
 //        HadoopShim shim = hadoopConfiguration.getHadoopShim();
 //        org.pentaho.hadoop.shim.api.Configuration conf = shim.createConfiguration();
 //        org.pentaho.hadoop.shim.api.fs.FileSystem fs = shim.getFileSystem( conf );
@@ -118,7 +146,8 @@ public class ParquetOutput extends BaseStep implements StepInterface {
   }
 
   public void writeRow( Object[] row ) throws KettleException {
-    throw new KettleException( "Requires Shim API changes" );
+    //throw new KettleException( "Requires Shim API changes" );
+    System.out.println("write row");
    /* GenericRecord record = new GenericData.Record( data.avroSchema );
     List<ParquetOutputField> outputFields = meta.getOutputFields();
     for ( ParquetOutputField field : outputFields ) {

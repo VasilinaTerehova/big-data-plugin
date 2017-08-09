@@ -23,6 +23,8 @@
 package org.pentaho.big.data.kettle.plugins.formats.parquet.input;
 
 import org.apache.commons.vfs2.FileObject;
+import org.pentaho.big.data.kettle.plugins.formats.parquet.output.ParquetOutput;
+import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
@@ -32,12 +34,16 @@ import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.di.trans.steps.file.BaseFileInputStep;
 import org.pentaho.di.trans.steps.file.IBaseFileInputReader;
 import org.pentaho.hadoop.shim.HadoopConfiguration;
+import org.pentaho.hadoop.shim.api.Configuration;
 
 public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, ParquetInputData> {
 
+  private final FormatService formatService;
+
   public ParquetInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                       Trans trans, FormatService formatService ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    this.formatService = formatService;
 
     // dirty hack for inialize file: filesystem
  /*   try {
@@ -53,7 +59,12 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
 
   @Override
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
-    throw new KettleException( "Requires Shim API changes" );
+    //throw new KettleException( "Requires Shim API changes" );
+    Configuration configuration = formatService.createConfiguration();
+    configuration.set( "mapreduce.input.fileinputformat.inputdir",
+      "file:///d:/projects/pentaho/pentaho-hadoop-shims/common/common-shim/src/test/resources/sample.pqt" );
+    formatService.getInputFormat( configuration, ParquetOutput.makeScheme() );
+    return true;
     /* ParquetInputData data = (ParquetInputData) sdi;
 
     try {
@@ -93,7 +104,8 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
   void initFiles( ParquetInputData data ) throws Exception {
     //HadoopConfiguration hc=null;
     //hc.getFormatShim();
-    throw new KettleException( "Requires Shim API changes" );
+    //throw new KettleException( "Requires Shim API changes" );
+    System.out.println("init files");
     /* data.input = new ParquetInputFormat<>( PentahoParquetReadSupport.class );
     Job job = new Job();
     job.getConfiguration().set( FileInputFormat.INPUT_DIR, meta.dir );
@@ -111,7 +123,8 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMetaBase, Parque
   }
 
   void openReader( ParquetInputData data ) throws Exception {
-    throw new KettleException( "Requires Shim API changes" );
+    //throw new KettleException( "Requires Shim API changes" );
+    System.out.println("open reader");
    /* Configuration c = new Configuration();
     TaskAttemptID id = new TaskAttemptID();
     TaskAttemptContextImpl task = new TaskAttemptContextImpl( c, id );

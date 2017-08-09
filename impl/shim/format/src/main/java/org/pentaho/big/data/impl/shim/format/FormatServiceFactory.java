@@ -44,7 +44,7 @@ public class FormatServiceFactory implements NamedClusterServiceFactory<FormatSe
 
   @Override public FormatService create( NamedCluster namedCluster ) {
     try {
-      return new FormatServiceImpl( namedCluster, hadoopConfiguration.getFormatShim() );
+      return new FormatServiceImpl( namedCluster, hadoopConfiguration );
     } catch ( ConfigurationException e ) {
       throw new RuntimeException( "Error getting format shim ", e );
     }

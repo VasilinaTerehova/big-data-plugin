@@ -22,6 +22,7 @@
 
 package org.pentaho.big.data.kettle.plugins.formats.parquet.output;
 
+import org.pentaho.bigdata.api.format.FormatService;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.i18n.BaseMessages;
@@ -33,9 +34,9 @@ import org.pentaho.di.trans.step.StepMeta;
 
 
 @Step( id = "ParquetOutput", image = "PO.svg", name = "ParquetOutput.Name", description = "ParquetOutput.Description",
-    categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/Parquet+output",
-    i18nPackageName = "org.pentaho.di.trans.steps.parquet" )
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Parquet+output",
+  i18nPackageName = "org.pentaho.di.trans.steps.parquet" )
 public class ParquetOutputMeta extends ParquetOutputMetaBase {
 
   private static final Class<?> PKG = ParquetOutputMeta.class;
@@ -44,10 +45,16 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
   private CompressionType compressionType;
   private ParquetVersion parquetVersion;
 
+  private FormatService formatService;
+
+  public ParquetOutputMeta( FormatService formatService ) {
+    this.formatService = formatService;
+  }
+
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
-    return new ParquetOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+                                Trans trans ) {
+    return new ParquetOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans, formatService );
   }
 
 
@@ -88,6 +95,7 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
   public String[] getCompressionTypes() {
     return getStrings( CompressionType.values() );
   }
+
   public String[] getVersionTypes() {
     return getStrings( ParquetVersion.values() );
   }
@@ -99,6 +107,7 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
     LZO( "LZO" );
 
     private final String name;
+
     private CompressionType( String name ) {
       this.name = name;
     }
@@ -116,6 +125,7 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
     RLE( getMsg( "ParquetOutput.EncodingType.RLE" ) );
 
     private final String name;
+
     private EncodingType( String name ) {
       this.name = name;
     }
@@ -131,9 +141,11 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
     PARQUET_2( "Parquet 2.0" );
 
     private final String name;
+
     private ParquetVersion( String name ) {
       this.name = name;
     }
+
     @Override
     public String toString() {
       return name;
@@ -141,10 +153,10 @@ public class ParquetOutputMeta extends ParquetOutputMetaBase {
   }
 
   protected static <T> String[] getStrings( T[] objects ) {
-    String[] names = new String[objects.length];
+    String[] names = new String[ objects.length ];
     int i = 0;
     for ( T obj : objects ) {
-      names[i++] = obj.toString();
+      names[ i++ ] = obj.toString();
     }
     return names;
   }
