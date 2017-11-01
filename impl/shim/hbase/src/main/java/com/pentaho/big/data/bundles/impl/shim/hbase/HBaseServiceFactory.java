@@ -50,7 +50,13 @@ public class HBaseServiceFactory implements NamedClusterServiceFactory<HBaseServ
   }
 
   @Override public boolean canHandle( NamedCluster namedCluster ) {
-    return isActiveConfiguration;
+    if (namedCluster.getName().startsWith( "hdp" ) && hadoopConfiguration.getHadoopConfiguration().getName().toLowerCase().contains( "hdp" )) {
+      return true;
+    }
+    if (namedCluster.getName().startsWith( "cdh" ) && hadoopConfiguration.getHadoopConfiguration().getName().toLowerCase().contains( "cdh" )) {
+      return true;
+    }
+    return false;
   }
 
   @Override public HBaseService create( NamedCluster namedCluster ) {

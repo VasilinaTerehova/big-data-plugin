@@ -18,7 +18,15 @@
     <argument ref="hasCdh511HadoopConfiguration"/>
   </bean>
 
+  <bean id="hdp25HBaseServiceFactory" class="com.pentaho.big.data.bundles.impl.shim.hbase.HBaseServiceFactory">
+    <argument ref="hasHdp25HadoopConfiguration"/>
+  </bean>
+
   <service ref="cdh11HBaseServiceFactory" interface="org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceFactory"/>
 
-  <reference id="hasCdh511HadoopConfiguration" interface="org.pentaho.hadoop.shim.api.HasConfiguration"/>
+  <service ref="hdp25HBaseServiceFactory" interface="org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceFactory"/>
+
+  <reference id="hasCdh511HadoopConfiguration" interface="org.pentaho.hadoop.shim.api.HasConfiguration" filter="(shim=cdh511)"/>
+
+  <reference id="hasHdp25HadoopConfiguration" interface="org.pentaho.hadoop.shim.api.HasConfiguration" filter="(shim=hdp25)"/>
 </blueprint>
